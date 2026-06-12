@@ -56,12 +56,6 @@
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 20px 20px}
   .chartbox{position:relative;height:230px}
   .chartbox.tall{height:300px}
-  .dtbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px}
-  .dtbl th,.dtbl td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line)}
-  .dtbl th:nth-child(2),.dtbl td:nth-child(2){text-align:left}
-  .dtbl td.rk{color:var(--sub);text-align:center}
-  .dtbl th{color:var(--sub);font-weight:600}
-  .dtbl tr:last-child td{border-bottom:none}
   .legend{position:absolute;right:14px;top:12px;z-index:500;background:rgba(13,17,23,.82);
           border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:11px;line-height:1.7}
   .legend b{display:inline-block;width:22px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
@@ -108,7 +102,6 @@
   <div class="card">
     <h2>이동인구 합계(명) <span class="hint">유입+유출</span></h2>
     <div class="chartbox"><canvas id="cTop"></canvas></div>
-    <table class="dtbl" id="topTable"></table>
   </div>
   <div class="card">
     <h2>연령대 분포 <span class="hint">내국인 기준</span></h2>
@@ -391,12 +384,6 @@ function drawTop(){
       tooltip:{callbacks:{label:c=>fmt(c.raw)+'명'}}},
       scales:{x:{max:350000,grid:gridOpt,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}},
               y:{grid:{display:false},ticks:{font:{size:10}}}}}});
-  // 인구수 표 (유입·유출·합계)
-  let html='<tr><th>#</th><th>지역</th><th style="color:'+C.in+'">유입</th>'
-          +'<th style="color:'+C.out+'">유출</th><th>합계</th></tr>';
-  rows.forEach((r,i)=>{ html+='<tr><td class="rk">'+(i+1)+'</td><td>'+r[0]
-    +'</td><td>'+fmt(r[1])+'</td><td>'+fmt(r[2])+'</td><td><b>'+fmt(r[3])+'</b></td></tr>'; });
-  document.getElementById('topTable').innerHTML=html;
 }
 
 /* 연령대 */
