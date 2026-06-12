@@ -109,7 +109,7 @@
   </div>
   <div class="card">
     <h2>이동수단 분포</h2>
-    <div class="chartbox" style="height:330px"><canvas id="cMode"></canvas></div>
+    <div class="chartbox"><canvas id="cMode"></canvas></div>
   </div>
   <div class="card">
     <h2>시간대별 이동 <span class="hint">유입=도착시각·유출=출발시각</span></h2>
@@ -407,7 +407,7 @@ const donutValueLabel={
     ctx.font='700 11px "Malgun Gothic","맑은 고딕",sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     meta.data.forEach((arc,i)=>{
-      if(labels[i]!=='차량'&&labels[i]!=='지하철')return;
+      if(labels[i]!=='차량')return;
       const v=chart.data.datasets[0].data[i]; if(!v)return;
       const ang=(arc.startAngle+arc.endAngle)/2, r=(arc.innerRadius+arc.outerRadius)/2;
       const px=arc.x+Math.cos(ang)*r, py=arc.y+Math.sin(ang)*r;
