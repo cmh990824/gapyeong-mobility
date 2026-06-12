@@ -53,7 +53,7 @@
   .tag.in{background:rgba(74,163,255,.18);color:var(--in)}
   .tag.out{background:rgba(255,138,74,.18);color:var(--out)}
   .mmap{height:560px;border-radius:8px;background:#05080d}
-  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 20px 20px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 20px 20px;align-items:start}
   .chartbox{position:relative;height:230px}
   .chartbox.tall{height:300px}
   .legend{position:absolute;right:14px;top:12px;z-index:500;background:rgba(13,17,23,.82);
@@ -109,7 +109,7 @@
   </div>
   <div class="card">
     <h2>이동수단 분포</h2>
-    <div class="chartbox"><canvas id="cMode"></canvas></div>
+    <div class="chartbox" style="height:330px"><canvas id="cMode"></canvas></div>
   </div>
   <div class="card">
     <h2>시간대별 이동 <span class="hint">유입=도착시각·유출=출발시각</span></h2>
@@ -398,6 +398,26 @@ function drawAge(){
       scales:{x:{grid:{display:false}},y:{grid:gridOpt,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}}}}});
 }
 
+/* 도넛 특정 항목(차량·지하철) 조각 안에 인구수 표시 */
+const donutValueLabel={
+  id:'donutValueLabel',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx, meta=chart.getDatasetMeta(0), labels=chart.data.labels;
+    ctx.save();
+    ctx.font='700 11px "Malgun Gothic","맑은 고딕",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    meta.data.forEach((arc,i)=>{
+      if(labels[i]!=='차량'&&labels[i]!=='지하철')return;
+      const v=chart.data.datasets[0].data[i]; if(!v)return;
+      const ang=(arc.startAngle+arc.endAngle)/2, r=(arc.innerRadius+arc.outerRadius)/2;
+      const px=arc.x+Math.cos(ang)*r, py=arc.y+Math.sin(ang)*r;
+      ctx.fillStyle='#0a0e14';
+      ctx.fillText(fmt(v),px,py);
+    });
+    ctx.restore();
+  }
+};
+
 /* 수단 */
 function drawMode(){
   const dirs=dirsFor();
@@ -408,7 +428,9 @@ function drawMode(){
   const pal=[C.in,C.out,C.accent,C.int,'#e2c14a','#5ad19b','#d15a8a'];
   mkChart('cMode',{type:'doughnut',data:{labels:arr.map(a=>a[0]),
     datasets:[{data:arr.map(a=>a[1]),backgroundColor:pal,borderColor:'#161b22',borderWidth:2}]},
-    options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10}}},
+    plugins:[donutValueLabel],
+    options:{cutout:'52%',layout:{padding:6},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:11}}},
       tooltip:{callbacks:{label:c=>c.label+' '+fmt(c.raw)+'명'}}}}});
 }
 
