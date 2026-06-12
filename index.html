@@ -273,7 +273,15 @@ function addDir(svg,dir){
       label.setAttribute('stroke-width','3');
       label.setAttribute('stroke-linejoin','round');
       label.style.pointerEvents='none';
-      label.textContent=a.name;
+      const lx=(p1.x+(right?8:-8)).toFixed(1);
+      const tName=document.createElementNS(svgNS,'tspan');
+      tName.setAttribute('x',lx); tName.setAttribute('dy','0');
+      tName.textContent=a.name;
+      const tPop=document.createElementNS(svgNS,'tspan');
+      tPop.setAttribute('x',lx); tPop.setAttribute('dy','13');
+      tPop.setAttribute('fill',col); tPop.setAttribute('font-size','10');
+      tPop.textContent=dir+' '+fmt(a.pop)+'명';
+      label.appendChild(tName); label.appendChild(tPop);
       svg.appendChild(label);
     }
   });
