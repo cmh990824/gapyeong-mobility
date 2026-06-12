@@ -358,6 +358,24 @@ const gridOpt = {color:C.grid};
 let charts={};
 function mkChart(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
 
+/* 가로 막대 끝/안에 값 라벨을 그리는 인라인 플러그인 */
+const barValueLabel={
+  id:'barValueLabel',
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx, meta=chart.getDatasetMeta(0);
+    ctx.save();
+    ctx.font='600 10px "Malgun Gothic","맑은 고딕",sans-serif';
+    ctx.textBaseline='middle';
+    meta.data.forEach((bar,i)=>{
+      const v=chart.data.datasets[0].data[i]; if(v==null)return;
+      const txt=fmt(v), w=bar.x-bar.base;
+      if(w>42){ ctx.fillStyle='#04203f'; ctx.textAlign='right'; ctx.fillText(txt,bar.x-6,bar.y); }
+      else { ctx.fillStyle='#cbd5e1'; ctx.textAlign='left'; ctx.fillText(txt,bar.x+5,bar.y); }
+    });
+    ctx.restore();
+  }
+};
+
 /* 이동인구 합계 TOP10 상대지역 (유입+유출) */
 function drawTop(){
   const agg={};   // 지역명 -> {in, out}
@@ -368,9 +386,10 @@ function drawTop(){
     .sort((a,b)=>b[3]-a[3]).slice(0,10);
   mkChart('cTop',{type:'bar',data:{labels:rows.map(t=>t[0].replace('특별자치도','')),
     datasets:[{data:rows.map(t=>t[3]),backgroundColor:C.accent,borderRadius:3}]},
+    plugins:[barValueLabel],
     options:{indexAxis:'y',plugins:{legend:{display:false},
       tooltip:{callbacks:{label:c=>fmt(c.raw)+'명'}}},
-      scales:{x:{grid:gridOpt,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}},
+      scales:{x:{grace:'8%',grid:gridOpt,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}},
               y:{grid:{display:false},ticks:{font:{size:10}}}}}});
   // 인구수 표 (유입·유출·합계)
   let html='<tr><th>#</th><th>지역</th><th style="color:'+C.in+'">유입</th>'
