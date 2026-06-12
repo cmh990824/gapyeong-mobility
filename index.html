@@ -64,6 +64,33 @@
   .leaflet-popup-tip{background:#1c2330}
   .leaflet-popup-content{margin:10px 12px;font-size:12px;line-height:1.5}
   .leaflet-container{font-family:inherit}
+
+  /* ====== 모바일 (폭 760px 이하) ====== */
+  @media (max-width:760px){
+    body{font-size:12px}
+    header{padding:12px 14px;gap:10px}
+    h1{font-size:15px;width:100%}
+    h1 small{display:block;margin:5px 0 0 0}
+    .filters{margin-left:0;gap:8px 14px;width:100%}
+    .kpis{flex-wrap:wrap;padding:12px 14px 2px;gap:8px}
+    .kpi{flex:1 1 calc(50% - 4px);padding:10px 12px}
+    .kpi .v{font-size:20px}
+    .grid{padding:10px 14px}
+    .row3{grid-template-columns:1fr;padding:0 14px 16px}
+    .mmap{height:60vh;min-height:320px}
+    .chartbox{height:240px}
+    .card h2{font-size:13px}
+    .legend{font-size:10px;padding:5px 8px;right:8px;top:8px}
+    .hourbar{gap:7px}
+    .hourbar input[type=range]{min-width:110px}
+    .foot{padding:0 14px 20px}
+  }
+  /* ====== 초소형 (폭 430px 이하) ====== */
+  @media (max-width:430px){
+    h1{font-size:14px}
+    .kpi{flex:1 1 100%}
+    .maptoggle{margin-left:0;margin-top:6px}
+  }
 </style>
 </head>
 <body>
