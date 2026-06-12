@@ -56,6 +56,12 @@
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:0 20px 20px}
   .chartbox{position:relative;height:230px}
   .chartbox.tall{height:300px}
+  .dtbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px}
+  .dtbl th,.dtbl td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line)}
+  .dtbl th:nth-child(2),.dtbl td:nth-child(2){text-align:left}
+  .dtbl td.rk{color:var(--sub);text-align:center}
+  .dtbl th{color:var(--sub);font-weight:600}
+  .dtbl tr:last-child td{border-bottom:none}
   .legend{position:absolute;right:14px;top:12px;z-index:500;background:rgba(13,17,23,.82);
           border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:11px;line-height:1.7}
   .legend b{display:inline-block;width:22px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
@@ -100,8 +106,9 @@
 
 <div class="row3">
   <div class="card">
-    <h2>상대지역 TOP 15 <span class="hint">교류 이동인구</span></h2>
+    <h2>이동인구 합계(명) <span class="hint">유입+유출</span></h2>
     <div class="chartbox"><canvas id="cTop"></canvas></div>
+    <table class="dtbl" id="topTable"></table>
   </div>
   <div class="card">
     <h2>연령대 분포 <span class="hint">내국인 기준</span></h2>
@@ -351,19 +358,26 @@ const gridOpt = {color:C.grid};
 let charts={};
 function mkChart(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
 
-/* TOP15 상대지역 */
+/* 이동인구 합계 TOP10 상대지역 (유입+유출) */
 function drawTop(){
-  const dirs=dirsFor().filter(d=>d!=='내부');
-  const agg={};
-  DATA.flows.forEach(r=>{ if(!mS(r)||!mD(r)||!dirs.includes(r.dir)||r.name===gap.name)return;
-    agg[r.name]=(agg[r.name]||0)+r.pop;});
-  const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,15);
-  mkChart('cTop',{type:'bar',data:{labels:top.map(t=>t[0].replace('특별자치도','')),
-    datasets:[{data:top.map(t=>t[1]),backgroundColor:C.accent,borderRadius:3}]},
+  const agg={};   // 지역명 -> {in, out}
+  DATA.flows.forEach(r=>{ if(!mS(r)||!mD(r)||r.dir==='내부'||r.name===gap.name)return;
+    const o=agg[r.name]||(agg[r.name]={in:0,out:0});
+    if(r.dir==='유입')o.in+=r.pop; else if(r.dir==='유출')o.out+=r.pop;});
+  const rows=Object.entries(agg).map(([name,v])=>[name,v.in,v.out,v.in+v.out])
+    .sort((a,b)=>b[3]-a[3]).slice(0,10);
+  mkChart('cTop',{type:'bar',data:{labels:rows.map(t=>t[0].replace('특별자치도','')),
+    datasets:[{data:rows.map(t=>t[3]),backgroundColor:C.accent,borderRadius:3}]},
     options:{indexAxis:'y',plugins:{legend:{display:false},
       tooltip:{callbacks:{label:c=>fmt(c.raw)+'명'}}},
       scales:{x:{grid:gridOpt,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}},
               y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  // 인구수 표 (유입·유출·합계)
+  let html='<tr><th>#</th><th>지역</th><th style="color:'+C.in+'">유입</th>'
+          +'<th style="color:'+C.out+'">유출</th><th>합계</th></tr>';
+  rows.forEach((r,i)=>{ html+='<tr><td class="rk">'+(i+1)+'</td><td>'+r[0]
+    +'</td><td>'+fmt(r[1])+'</td><td>'+fmt(r[2])+'</td><td><b>'+fmt(r[3])+'</b></td></tr>'; });
+  document.getElementById('topTable').innerHTML=html;
 }
 
 /* 연령대 */
